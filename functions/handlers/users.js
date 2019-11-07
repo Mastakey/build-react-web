@@ -88,14 +88,14 @@ exports.login = async (req, res) => {
   }
 };
 
-//Get user details
+//Get logged in user details
 exports.getAuthenticatedUser = (req, res) => {
   let userData = {};
   db.doc(`/users/${req.user.username}`)
     .get()
     .then(doc => {
       if (doc.exists) {
-        userData.credentials = doc.data();
+        userData.user = doc.data();
       }
       return res.json(userData);
     })
