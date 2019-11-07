@@ -30,7 +30,7 @@ exports.signUp = async (req, res) => {
     let data = await firebase
       .auth()
       .createUserWithEmailAndPassword(newUser.email, newUser.password);
-    let userId = data.user.uid;
+    let uid = data.user.uid;
     let tokenId = await data.user.getIdToken();
     await data.user.sendEmailVerification()
     const userCredentials = {
@@ -38,11 +38,11 @@ exports.signUp = async (req, res) => {
       email: newUser.email,
       createdAt: new Date().toUTCString(),
       imageUrl: noImg,
-      userId: userId
+      uid: uid
     };
     //Create /users/ collection doc
     await db.doc(`/users/${newUser.username}`).set(userCredentials);
-    return res.status(201).json({ tokenId: tokenId });
+    return res.status(201).json({ tokenId: tokenId, uid: uid });
   } catch (err) {
     console.error(err);
     if (err.code === "auth/email-already-in-use") {
@@ -121,6 +121,16 @@ exports.getUserDetails = (req, res) => {
       return res.status(500).json({ error: err.code });
     });
 };
+
+//Delete a user
+exports.deleteUser = async (req, res) => {
+  try {
+    await admin.auth().deleteUser(req.params.uid);
+    return res.status(200).json({ user: req.params.uid });
+  } catch(err) {
+    return res.status(500).json({ error: err });
+  }
+}
 
 //Forgot password
 exports.sendForgotPasswordEmail = async (req, res) => {
