@@ -32,6 +32,7 @@ exports.signUp = async (req, res) => {
       .createUserWithEmailAndPassword(newUser.email, newUser.password);
     let userId = data.user.uid;
     let tokenId = await data.user.getIdToken();
+    await data.user.sendEmailVerification()
     const userCredentials = {
       username: newUser.username,
       email: newUser.email,
